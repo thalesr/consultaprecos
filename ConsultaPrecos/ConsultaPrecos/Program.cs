@@ -1,6 +1,7 @@
 ﻿using ConsultaPrecos.RequestClasses;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace ConsultaPrecos
@@ -23,7 +24,10 @@ namespace ConsultaPrecos
         {
             
             var requestKabum = new KabumRequest();
-            
+            var requestPichau = new PichauRequest();
+
+            bool possuiResultados = false;
+
             Console.WriteLine("=====================================");
             Console.WriteLine("PESQUISA DE PREÇOS GPU - V0.1");
             Console.WriteLine("=====================================");
@@ -47,11 +51,20 @@ namespace ConsultaPrecos
                 Console.WriteLine("RESULTADOS NA KABUM: {0}", listaRetornoKabum.Count);
 
                 //Pesquisa na Pichau
-                //TODO
+                var listaRetornoPichau = requestPichau.ExecuteRequest(formatedParamValue.ToUpper());
+                var countPichau = 0;
+                listaRetornoPichau.ForEach(x =>
+                {
+                    countPichau += x.Ecommerce.Impressions.Count();
+                });
+                Console.WriteLine("RESULTADOS NA PICHAU: {0}", countPichau);
+
                 //Pesquisa na Terabyte
                 //TODO
 
-                if (listaRetornoKabum.Count > 0)
+                possuiResultados = listaRetornoKabum.Count > 0 || listaRetornoPichau.Count > 0;
+
+                if (possuiResultados)
                 {
                     Directory.CreateDirectory(path);
 
@@ -65,8 +78,18 @@ namespace ConsultaPrecos
                         //Adicionando itens da Kabum
                         listaRetornoKabum.ForEach(x =>
                         {
-                            sw.Write("{0};{1};{2};{3};{4};{5}", "KABUM", paramValue, x.Fabricante.Nome, x.Nome.Replace(",", " "), x.Preco, x.Preco_Desconto);
+                            sw.Write("{0};{1};{2};{3};{4};{5}", "KABUM", paramValue, x.Fabricante.Nome, x.Nome, x.Preco, x.Preco_Desconto);
                             sw.Write(sw.NewLine);
+                        });
+
+                        //Adicionando itens da Pichau
+                        listaRetornoPichau.ForEach(x =>
+                        {
+                            x.Ecommerce.Impressions.ForEach(y =>
+                            {
+                                sw.Write("{0};{1};{2};{3};{4};{5}", "PICHAU", paramValue, y.Brand, y.Name, y.Price, y.Price - y.Discount);
+                                sw.Write(sw.NewLine);
+                            });
                         });
 
                         sw.Close();

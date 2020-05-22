@@ -23,7 +23,6 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <AutorunEnabled>true</AutorunEnabled>
     <ApplicationRevision>1</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
@@ -84,9 +83,14 @@
   <ItemGroup>
     <Compile Include="JsonEntity\Kabum\KabumFabricanteJson.cs" />
     <Compile Include="JsonEntity\Kabum\KabumJson.cs" />
+    <Compile Include="JsonEntity\Pichau\Pichau.cs" />
+    <Compile Include="JsonEntity\Pichau\PichauEcommerceJson.cs" />
+    <Compile Include="JsonEntity\Pichau\PichauImpressionJson.cs" />
+    <Compile Include="JsonEntity\Pichau\PichauJson.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestClasses\KabumRequest.cs" />
+    <Compile Include="RequestClasses\PichauRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

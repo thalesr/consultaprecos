@@ -1,4 +1,4 @@
-﻿using ConsultaPrecos.JsonEntity.Kabum;
+﻿using ConsultaPrecos.JsonEntity.Pichau;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,26 +10,26 @@ using System.Threading.Tasks;
 
 namespace ConsultaPrecos.RequestClasses
 {
-    public class KabumRequest
+    public class PichauRequest
     {
-        public List<KabumJson> ExecuteRequest(string searchParam)
+
+        public List<PichauJson> ExecuteRequest(string searchParam)
         {
 
-            KabumJson[] returnList = new KabumJson[0];
+            PichauJson[] retorno = new PichauJson[0];
 
             try
             {
-                
-                Console.Write("KABUM...");
+
+                Console.Write("PICHAU...");
 
                 searchParam = searchParam.TrimStart().TrimEnd().Replace(" ", "+");
 
-                string urlAddress = "https://www.kabum.com.br/cgi-local/site/listagem/listagem.cgi?string=" + searchParam;
-                string urlParameters = "&pagina=1&ordem=5&limite=100&prime=false&marcas=[]&tipo_produto=[]&filtro=[]";
+                string urlAddress = "https://www.pichau.com.br/catalogsearch/result/index/?product_list_limit=48&q=" + searchParam;
 
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlAddress + urlParameters);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlAddress);
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                
+
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -44,7 +44,7 @@ namespace ConsultaPrecos.RequestClasses
                     string data = readStream.ReadToEnd();
                     var json = GetJson(data);
 
-                    returnList = JsonConvert.DeserializeObject<KabumJson[]>(json);
+                    retorno = JsonConvert.DeserializeObject<PichauJson[]>(json);
 
                     response.Close();
                     readStream.Close();
@@ -52,31 +52,33 @@ namespace ConsultaPrecos.RequestClasses
                     Console.Write("...OK");
 
                 }
-
             }
             catch (Exception)
             {
-                Console.Write("...A CONSULTA AO SITE DA KABUM NÃO FOI BEM SUCEDIDA");
+                Console.Write("...A CONSULTA AO SITE DA PICHAU NÃO FOI BEM SUCEDIDA");
             }
 
             Console.WriteLine();
-            return returnList.ToList();
+            return retorno.ToList();
 
         }
 
         public static string GetJson(string dados)
         {
+            var stringPesquisaIndexInicial = "{\"ecomm_pagetype\":\"searchresults\"},";
+            var stringPesquisaIndexFinal = "for (var i in dlObjects) {";
 
-            var indexOfInicio = dados.IndexOf("const listagemDados = ");
-            var indexOfFim = dados.IndexOf("const listagemCount");
+            var indexOfInicio = dados.IndexOf(stringPesquisaIndexInicial) + stringPesquisaIndexInicial.Length;
+            var indexOfFim = dados.IndexOf(stringPesquisaIndexFinal);
 
             var jsonBruto = dados.Substring(indexOfInicio, indexOfFim - indexOfInicio);
-            var jsonPrimeiroTratamento = jsonBruto.Substring(22);
+            var jsonPrimeiroTratamento = "[{" + jsonBruto;
             var jsonSegundoTratamento = jsonPrimeiroTratamento.Substring(0, jsonPrimeiroTratamento.IndexOf("];"));
             var jsonFinal = jsonSegundoTratamento + "]";
 
             return jsonFinal;
 
         }
+
     }
 }
